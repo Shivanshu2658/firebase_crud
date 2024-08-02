@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_crud/add_employee.dart';
+import 'package:firebase_crud/login/login_screen.dart';
 import 'package:firebase_crud/service/database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,13 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     // TODO: implement initState
-    getOnTheLoad();
+    // getOnTheLoad();
     super.initState();
   }
 
   Widget allEmployeeDetails() {
     return StreamBuilder(
-        stream: EmployeeStream,
+        stream: FirebaseFirestore.instance.collection("Employee").snapshots(),
+        // stream: EmployeeStream,
         builder: (context, AsyncSnapshot snapshot) {
           return snapshot.hasData
               ? ListView.builder(
@@ -252,6 +256,17 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text("Cloud Firestore"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: IconButton(icon: Icon(Icons.logout),onPressed: ()async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+
+              await prefs.setString('loginUid',"");
+              Get.off(() => LoginScreen());
+            },),
+          )
+        ],
       ),
       body: Column(
         children: [
